@@ -5,7 +5,7 @@ import {
   MemoryHealthIndicator,
   MongooseHealthIndicator,
 } from '@nestjs/terminus';
-import { RedisHealthIndicator } from '@/modules/health/redis.health.indicator';
+import { RedisHealthIndicator } from '@/modules/health/indicators/redis.health.indicator';
 
 const bytesFromMb = (value: number) => value * 1024 * 1024;
 
@@ -27,6 +27,7 @@ export class HealthController {
     return this.health.check([
       () => this.memory.checkHeap('memory_heap', bytesFromMb(heapLimit)),
       () => this.memory.checkRSS('memory_rss', bytesFromMb(rssLimit)),
+      () => this.redis.isHealthy('redis'),
     ]);
   }
 

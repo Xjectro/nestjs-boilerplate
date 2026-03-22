@@ -96,19 +96,19 @@ Compose spins up four services:
 
 ### Environment variables
 
-| Variable                  | Default                             | Purpose                                                                                          |
-| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `PORT`                    | `3000`                              | Internal NestJS port exposed by the container.                                                   |
-| `MONGODB_URI`             | `mongodb://127.0.0.1:27017/turtles` | Connection string consumed by `MongooseModule.forRoot`.                                          |
-| `REDIS_URL`               | `redis://127.0.0.1:6379`            | Redis connection string leveraged by the global cache and readiness checks.                      |
-| `CACHE_TTL`               | `5`                                 | Default cache entry lifetime in seconds.                                                         |
-| `SEQ_SERVER_URL`          | unset                               | HTTP endpoint of your Seq instance. When unset, only console logging is used.                    |
-| `SEQ_API_KEY`             | unset                               | Optional ingestion API key if your Seq server requires authentication.                           |
-| `SEQ_MIN_LEVEL`           | `Information`                       | Minimum level forwarded to Seq (`Verbose`, `Debug`, `Information`, `Warning`, `Error`, `Fatal`). |
-| `THROTTLE_TTL`            | `60`                                | Duration in seconds for which throttling limits are calculated.                                  |
-| `THROTTLE_LIMIT`          | `100`                               | Maximum number of requests per IP within the throttling window.                                  |
-| `HEALTH_HEAP_THRESHOLD_MB`| `150`                               | Max Node.js heap (in MB) before `/health` reports unhealthy.                                     |
-| `HEALTH_RSS_THRESHOLD_MB` | `300`                               | Max RSS (in MB) before `/health` reports unhealthy.                                              |
+| Variable                   | Default                             | Purpose                                                                                          |
+| -------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `PORT`                     | `3000`                              | Internal NestJS port exposed by the container.                                                   |
+| `MONGODB_URI`              | `mongodb://127.0.0.1:27017/turtles` | Connection string consumed by `MongooseModule.forRoot`.                                          |
+| `REDIS_URL`                | `redis://127.0.0.1:6379`            | Redis connection string leveraged by the global cache and readiness checks.                      |
+| `CACHE_TTL`                | `5`                                 | Default cache entry lifetime in seconds.                                                         |
+| `SEQ_SERVER_URL`           | unset                               | HTTP endpoint of your Seq instance. When unset, only console logging is used.                    |
+| `SEQ_API_KEY`              | unset                               | Optional ingestion API key if your Seq server requires authentication.                           |
+| `SEQ_MIN_LEVEL`            | `Information`                       | Minimum level forwarded to Seq (`Verbose`, `Debug`, `Information`, `Warning`, `Error`, `Fatal`). |
+| `THROTTLE_TTL`             | `60`                                | Duration in seconds for which throttling limits are calculated.                                  |
+| `THROTTLE_LIMIT`           | `100`                               | Maximum number of requests per IP within the throttling window.                                  |
+| `HEALTH_HEAP_THRESHOLD_MB` | `150`                               | Max Node.js heap (in MB) before `/health` reports unhealthy.                                     |
+| `HEALTH_RSS_THRESHOLD_MB`  | `300`                               | Max RSS (in MB) before `/health` reports unhealthy.                                              |
 
 Set these variables in a `.env` file or export them before running `docker compose` to customize the
 stack for each environment.

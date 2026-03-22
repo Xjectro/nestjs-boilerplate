@@ -1,0 +1,23 @@
+services:
+  api:
+    image: nestjs-boilerplate:staging
+    build:
+      context: ..
+      dockerfile: docker/images/api/Dockerfile.staging
+    ports:
+      - '${PORT:-3000}:3000'
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/turtles
+      REDIS_URL: redis://redis:6379
+      SEQ_SERVER_URL: http://seq:5341
+      SEQ_API_KEY: ''
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seq:
+        condition: service_started
+    restart: unless-stopped

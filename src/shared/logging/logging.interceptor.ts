@@ -1,25 +1,24 @@
 import { SeqLogger } from '@jasonsoft/nestjs-seq';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { NestFastifyRequest } from '@/libs/http/request';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private readonly logger: SeqLogger) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler) {
     const now = Date.now();
-    const request = context.switchToHttp().getRequest<Request>();
-    const { method, url } = request;
+    const request = context.switchToHttp().getRequest<NestFastifyRequest>();
+    const { method, url, id, ip, headers } = request;
 
     const requestContext = {
-      method: request.method,
+      method,
       context: 'RouterRequest',
-      url: url,
-      requestId: request.id,
-      ip: request.ip,
-      userAgent: request.headers['user-agent'],
+      url,
+      requestId: id,
+      ip,
+      userAgent: headers['user-agent'],
     };
 
     return next.handle().pipe(

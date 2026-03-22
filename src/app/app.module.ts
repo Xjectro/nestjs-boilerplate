@@ -4,10 +4,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { redisStore } from 'cache-manager-redis-yet';
-import { TurtleModule } from '@/modules/turtle/turtle.module';
-import { LoggerModule } from '@/shared/logger/logger.module';
-import { MonitoringModule } from '@/shared/monitoring/monitoring.module';
 import { HealthModule } from '@/modules/health/health.module';
+import { TurtleModule } from '@/modules/turtle/turtle.module';
+import { LoggerModule } from '@/shared/logging/logger.module';
+import { MonitoringModule } from '@/shared/monitoring/monitoring.module';
 
 @Module({
   imports: [
@@ -29,7 +29,10 @@ import { HealthModule } from '@/modules/health/health.module';
             ttl,
           };
         } catch (error) {
-          console.warn(`Redis connection failed (${redisUrl}). Falling back to in-memory cache.`, error);
+          console.warn(
+            `Redis connection failed (${redisUrl}). Falling back to in-memory cache.`,
+            error,
+          );
           return {
             ttl,
           };
@@ -46,7 +49,7 @@ import { HealthModule } from '@/modules/health/health.module';
     /** Modules */
     TurtleModule,
     HealthModule,
-    
+
     /** Shared Modules */
     LoggerModule,
     MonitoringModule,
@@ -58,4 +61,4 @@ import { HealthModule } from '@/modules/health/health.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

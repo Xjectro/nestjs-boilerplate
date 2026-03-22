@@ -19,12 +19,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "docker:test": "docker compose -f docker/test/docker-compose.yml up --build --abort-on-container-exit",
-    "docker:dev": "docker compose -f docker/dev/docker-compose.yml up --build",
-    "docker:staging": "docker compose -f docker/staging/docker-compose.yml up --build -d",
-    "docker:staging:down": "docker compose -f docker/staging/docker-compose.yml down -v",
-    "docker:prod": "docker compose -f docker/prod/docker-compose.yml up --build -d",
-    "docker:prod:down": "docker compose -f docker/prod/docker-compose.yml down -v"
+    "docker:test": "docker compose -f docker/compose.base.yml -f docker/compose.test.yml up --build --abort-on-container-exit",
+    "docker:dev": "docker compose -f docker/compose.base.yml -f docker/compose.dev.yml up --build",
+    "docker:staging": "docker compose -f docker/compose.base.yml -f docker/compose.staging.yml up --build -d",
+    "docker:staging:down": "docker compose -f docker/compose.base.yml -f docker/compose.staging.yml down -v",
+    "docker:prod": "docker compose -f docker/compose.base.yml -f docker/compose.prod.yml up --build -d",
+    "docker:prod:down": "docker compose -f docker/compose.base.yml -f docker/compose.prod.yml down -v"
   },
   "dependencies": {
     "@fastify/helmet": "^13.0.2",
@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.15.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
@@ -65,6 +66,7 @@
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "jest": "^30.0.0",

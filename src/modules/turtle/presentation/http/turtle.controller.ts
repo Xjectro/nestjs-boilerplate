@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateTurtleDto } from '@/modules/turtle/dto/create-turtle.dto';
-import { UpdateTurtleDto } from '@/modules/turtle/dto/update-turtle.dto';
-import { TurtleService } from '@/modules/turtle/turtle.service';
+import { CreateTurtleDto } from '@/modules/turtle/application/dto/create-turtle.dto';
+import { UpdateTurtleDto } from '@/modules/turtle/application/dto/update-turtle.dto';
+import { TurtleService } from '@/modules/turtle/application/turtle.service';
 import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
 
 @ApiTags('turtles')

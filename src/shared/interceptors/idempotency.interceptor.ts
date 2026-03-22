@@ -8,24 +8,31 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import {
+  buildIdempotencyKey,
+  buildIdempotencyLockKey,
+  IDEMPOTENCY_CACHE_TTL,
+  IDEMPOTENCY_LOCK_TTL,
+} from '@/libs/http/idempotency';
+import { getHeader, NestFastifyRequest } from '@/libs/http/request';
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest();
-
-    const sign = request.headers['sign'];
+  async intercept(context: ExecutionContext, next: CallHandler) {
+    const request = context.switchToHttp().getRequest<NestFastifyRequest>();
+    const rawSign = getHeader(request, 'sign');
+    const sign = Array.isArray(rawSign) ? rawSign[0] : rawSign;
 
     if (!sign) {
       throw new BadRequestException('Idempotency key missing');
     }
-    
-    const redisKey = `idempotency:${sign}`;
-    const lockKey = `${redisKey}:lock`;
+
+    const redisKey = buildIdempotencyKey(sign);
+    const lockKey = buildIdempotencyLockKey(sign);
 
     const cached = await this.cacheManager.get(redisKey);
     if (cached) {
@@ -37,12 +44,12 @@ export class IdempotencyInterceptor implements NestInterceptor {
       throw new ConflictException('Request already processing');
     }
 
-    await this.cacheManager.set(lockKey, true, 10 * 1000);
+    await this.cacheManager.set(lockKey, true, IDEMPOTENCY_LOCK_TTL);
 
     return next.handle().pipe(
-      tap(async (data) => {
-        await this.cacheManager.set(redisKey, data, 300 * 1000);
-        await this.cacheManager.del(lockKey);
+      tap((data) => {
+        void this.cacheManager.set(redisKey, data, IDEMPOTENCY_CACHE_TTL);
+        void this.cacheManager.del(lockKey);
       }),
     );
   }
