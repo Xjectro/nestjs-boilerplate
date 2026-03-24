@@ -6,14 +6,30 @@ import { App } from 'supertest/types';
 import { AppModule } from '@/app/app.module';
 
 type TurtleResponse = {
-  _id: string;
+  id: string;
+  _id?: string;
   name: string;
   species: string;
   age: number;
+  slug: string;
 };
 
-type MessagePayload = {
-  message?: string;
+type ApiSuccessPayload<T> = {
+  success: true;
+  data: T;
+  path: string;
+  timestamp: string;
+  requestId?: string | number;
+};
+
+type ApiErrorPayload = {
+  success: false;
+  errorCode: string;
+  message: string;
+  path: string;
+  timestamp: string;
+  requestId?: string | number;
+  details?: unknown;
 };
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -21,10 +37,11 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> =>
 
 const isTurtleResponse = (payload: unknown): payload is TurtleResponse =>
   isPlainObject(payload) &&
-  typeof payload._id === 'string' &&
+  typeof payload.id === 'string' &&
   typeof payload.name === 'string' &&
   typeof payload.species === 'string' &&
-  typeof payload.age === 'number';
+  typeof payload.age === 'number' &&
+  typeof payload.slug === 'string';
 
 const assertTurtleResponse = (payload: unknown): TurtleResponse => {
   if (!isTurtleResponse(payload)) {
@@ -40,24 +57,53 @@ const assertTurtleResponseList = (payload: unknown): TurtleResponse[] => {
   return payload;
 };
 
-const assertMessagePayload = (payload: unknown): MessagePayload => {
+const assertSuccessPayload = <T>(payload: unknown): ApiSuccessPayload<T> => {
   if (!isPlainObject(payload)) {
-    throw new Error('Response payload is not an object.');
+    throw new Error('Response payload must be an object.');
   }
 
-  if (
-    'message' in payload &&
-    payload.message !== undefined &&
-    typeof payload.message !== 'string'
-  ) {
-    throw new Error('Response payload message must be a string.');
+  if (payload.success !== true) {
+    throw new Error('Response payload is not a success envelope.');
   }
 
-  return payload as MessagePayload;
+  if (!('data' in payload)) {
+    throw new Error('Success payload must include data.');
+  }
+
+  if (typeof payload.path !== 'string') {
+    throw new Error('Success payload path must be a string.');
+  }
+
+  if (typeof payload.timestamp !== 'string') {
+    throw new Error('Success payload timestamp must be a string.');
+  }
+
+  return payload as ApiSuccessPayload<T>;
 };
 
-const isEmptyPayload = (payload: unknown): boolean =>
-  payload === null || (isPlainObject(payload) && Object.keys(payload).length === 0);
+const assertErrorPayload = (payload: unknown): ApiErrorPayload => {
+  if (!isPlainObject(payload)) {
+    throw new Error('Error payload must be an object.');
+  }
+
+  if (payload.success !== false) {
+    throw new Error('Error payload must have success=false.');
+  }
+
+  if (typeof payload.errorCode !== 'string') {
+    throw new Error('Error payload must include an error code.');
+  }
+
+  if (typeof payload.message !== 'string') {
+    throw new Error('Error payload must include a message.');
+  }
+
+  if (typeof payload.path !== 'string' || typeof payload.timestamp !== 'string') {
+    throw new Error('Error payload must include path and timestamp.');
+  }
+
+  return payload as ApiErrorPayload;
+};
 
 describe('TurtleController (e2e)', () => {
   let app: INestApplication<App>;
@@ -68,7 +114,7 @@ describe('TurtleController (e2e)', () => {
   })();
 
   const createTurtle = async (
-    overrides: Partial<{ name: string; species: string; age: number }> = {},
+    overrides: Partial<{ name: string; species: string; age: number; slug: string }> = {},
   ): Promise<TurtleResponse> => {
     const payload = {
       name: 'Leonardo',
@@ -83,7 +129,8 @@ describe('TurtleController (e2e)', () => {
       .send(payload)
       .expect(201);
 
-    return assertTurtleResponse(response.body as unknown);
+    const envelope = assertSuccessPayload<TurtleResponse>(response.body as unknown);
+    return assertTurtleResponse(envelope.data);
   };
 
   beforeAll(async () => {
@@ -101,8 +148,9 @@ describe('TurtleController (e2e)', () => {
       .send({ name: 'Raph', species: 'Loggerhead', age: 12 })
       .expect(400)
       .expect((res: Response) => {
-        const body = assertMessagePayload(res.body as unknown);
+        const body = assertErrorPayload(res.body as unknown);
         expect(body.message).toBe('Idempotency key missing');
+        expect(body.errorCode).toBe('BAD_REQUEST');
       });
   });
 
@@ -115,14 +163,16 @@ describe('TurtleController (e2e)', () => {
       .send(payload)
       .expect(201);
 
-    const turtle = assertTurtleResponse(response.body as unknown);
+    const envelope = assertSuccessPayload<TurtleResponse>(response.body as unknown);
+    const turtle = assertTurtleResponse(envelope.data);
 
     expect(turtle).toEqual(
       expect.objectContaining({
-        _id: expect.any(String),
+        id: expect.any(String),
         name: payload.name,
         species: payload.species,
         age: payload.age,
+        slug: expect.any(String),
       }),
     );
   });
@@ -132,7 +182,8 @@ describe('TurtleController (e2e)', () => {
     await createTurtle({ name: 'Raph' });
 
     const response = await request(app.getHttpServer()).get('/turtle').expect(200);
-    const turtles = assertTurtleResponseList(response.body as unknown);
+    const envelope = assertSuccessPayload<TurtleResponse[]>(response.body as unknown);
+    const turtles = assertTurtleResponseList(envelope.data);
 
     expect(turtles.length > 0).toBe(true);
   });
@@ -140,15 +191,17 @@ describe('TurtleController (e2e)', () => {
   it('fetches a turtle by id', async () => {
     const turtle = await createTurtle({ name: 'April' });
 
-    const response = await request(app.getHttpServer()).get(`/turtle/${turtle._id}`).expect(200);
-    const fetchedTurtle = assertTurtleResponse(response.body as unknown);
+    const response = await request(app.getHttpServer()).get(`/turtle/${turtle.id}`).expect(200);
+    const envelope = assertSuccessPayload<TurtleResponse | null>(response.body as unknown);
+    const fetchedTurtle = envelope.data ? assertTurtleResponse(envelope.data) : null;
 
     expect(fetchedTurtle).toEqual(
       expect.objectContaining({
-        _id: turtle._id,
+        id: turtle.id,
         name: 'April',
         species: turtle.species,
         age: turtle.age,
+        slug: expect.any(String),
       }),
     );
   });
@@ -157,35 +210,56 @@ describe('TurtleController (e2e)', () => {
     const turtle = await createTurtle({ name: 'Casey', species: 'Snapping' });
 
     const response = await request(app.getHttpServer())
-      .patch(`/turtle/${turtle._id}`)
-      .send({ id: turtle._id, name: 'Casey Jones', age: 21 })
+      .patch(`/turtle/${turtle.id}`)
+      .send({ id: turtle.id, name: 'Casey Jones', age: 21 })
       .expect(200);
-    const updatedTurtle = assertTurtleResponse(response.body as unknown);
+    const envelope = assertSuccessPayload<TurtleResponse>(response.body as unknown);
+    const updatedTurtle = assertTurtleResponse(envelope.data);
 
     expect(updatedTurtle).toEqual(
       expect.objectContaining({
-        _id: turtle._id,
+        id: turtle.id,
         name: 'Casey Jones',
         age: 21,
+        slug: expect.any(String),
       }),
     );
+  });
+
+  it('rejects duplicate slugs with a clear error code', async () => {
+    const slug = 'unique-turtle';
+    await createTurtle({ name: 'Alpha', slug });
+
+    await request(app.getHttpServer())
+      .post('/turtle')
+      .set('sign', nextIdempotencyKey())
+      .send({ name: 'Bravo', species: 'Test Species', age: 2, slug })
+      .expect(409)
+      .expect((res: Response) => {
+        const payload = assertErrorPayload(res.body as unknown);
+        expect(payload.errorCode).toBe('UNIQUE_SLUG');
+        expect(payload.message).toBe('Slug already exists.');
+      });
   });
 
   it('removes a turtle and confirms deletion', async () => {
     const turtle = await createTurtle({ name: 'Slash' });
 
     await request(app.getHttpServer())
-      .delete(`/turtle/${turtle._id}`)
+      .delete(`/turtle/${turtle.id}`)
       .expect(200)
       .expect((res: Response) => {
-        const payload = res.body as unknown;
-        const responseIsBoolean = typeof payload === 'boolean' ? payload : res.text === 'true';
-        expect(responseIsBoolean).toBe(true);
+        const envelope = assertSuccessPayload<boolean>(res.body as unknown);
+        expect(envelope.data).toBe(true);
       });
 
-    const followUp = await request(app.getHttpServer()).get(`/turtle/${turtle._id}`).expect(200);
-    const emptyResponse = isEmptyPayload(followUp.body as unknown);
-
-    expect(emptyResponse).toBe(true);
+    await request(app.getHttpServer())
+      .get(`/turtle/${turtle.id}`)
+      .expect(404)
+      .expect((res: Response) => {
+        const error = assertErrorPayload(res.body as unknown);
+        expect(error.errorCode).toBe('NOT_FOUND');
+        expect(error.message).toBe('Turtle not found.');
+      });
   });
 });

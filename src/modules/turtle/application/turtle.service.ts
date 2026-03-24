@@ -1,8 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { ApiErrorCode } from '@/libs/http/response';
 import { CreateTurtleDto } from '@/modules/turtle/application/dto/create-turtle.dto';
 import { UpdateTurtleDto } from '@/modules/turtle/application/dto/update-turtle.dto';
 import { TurtleCacheRepository } from '@/modules/turtle/infrastructure/persistence/turtle.cache.repository';
-import { TurtleRepository } from '@/modules/turtle/infrastructure/persistence/turtle.repository';
+import {
+  TurtleRepository,
+  TurtleWritableFields,
+} from '@/modules/turtle/infrastructure/persistence/turtle.repository';
 
 @Injectable()
 export class TurtleService {
@@ -12,7 +21,15 @@ export class TurtleService {
   ) {}
 
   async create(createTurtleDto: CreateTurtleDto) {
-    const created = await this.turtleRepository.create(createTurtleDto);
+    const slug = this.buildSlug(createTurtleDto.slug ?? createTurtleDto.name);
+    await this.ensureSlugAvailable(slug);
+    const payload: TurtleWritableFields = {
+      name: createTurtleDto.name,
+      species: createTurtleDto.species,
+      age: createTurtleDto.age ?? 0,
+      slug,
+    };
+    const created = await this.turtleRepository.create(payload);
     await this.turtleCache.evictList();
     const cacheId = this.resolveCacheId(created);
     await this.turtleCache.setOne(cacheId, created);
@@ -39,19 +56,43 @@ export class TurtleService {
     }
     const currentTurtle = await this.turtleRepository.findById(id);
     if (!currentTurtle) {
-      return null;
+      throw this.createNotFoundError();
     }
     await this.turtleCache.setOne(id, currentTurtle);
     return currentTurtle;
   }
 
   async update(id: string, updateTurtleDto: UpdateTurtleDto) {
-    const updatedTurtle = await this.turtleRepository.updateById(id, updateTurtleDto);
-    if (updatedTurtle) {
-      const cacheId = this.resolveCacheId(updatedTurtle, id);
-      await this.turtleCache.setOne(cacheId, updatedTurtle);
-      await this.turtleCache.evictList();
+    const payload: Partial<TurtleWritableFields> = {};
+
+    if (typeof updateTurtleDto.name === 'string') {
+      payload.name = updateTurtleDto.name;
     }
+
+    if (typeof updateTurtleDto.species === 'string') {
+      payload.species = updateTurtleDto.species;
+    }
+
+    if (typeof updateTurtleDto.age === 'number') {
+      payload.age = updateTurtleDto.age;
+    }
+
+    if (typeof updateTurtleDto.slug === 'string') {
+      payload.slug = this.buildSlug(updateTurtleDto.slug);
+    }
+
+    if (payload.slug) {
+      await this.ensureSlugAvailable(payload.slug, id);
+    }
+
+    const updatedTurtle = await this.turtleRepository.updateById(id, payload);
+    if (!updatedTurtle) {
+      throw this.createNotFoundError();
+    }
+
+    const cacheId = this.resolveCacheId(updatedTurtle, id);
+    await this.turtleCache.setOne(cacheId, updatedTurtle);
+    await this.turtleCache.evictList();
     return updatedTurtle;
   }
 
@@ -76,5 +117,48 @@ export class TurtleService {
     }
 
     return fallback ?? '';
+  }
+
+  private async ensureSlugAvailable(slug: string, ignoreId?: string) {
+    const existing = await this.turtleRepository.findBySlug(slug);
+    if (!existing) {
+      return;
+    }
+
+    const existingId = this.resolveCacheId(existing);
+    if (ignoreId && existingId === ignoreId) {
+      return;
+    }
+
+    throw new ConflictException({
+      message: 'Slug already exists.',
+      errorCode: ApiErrorCode.UNIQUE_SLUG,
+    });
+  }
+
+  private buildSlug(raw?: string) {
+    if (!raw) {
+      throw new BadRequestException('Slug or name must be provided');
+    }
+
+    const normalized = raw
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-{2,}/g, '-');
+
+    if (!normalized) {
+      throw new BadRequestException('Slug cannot be empty');
+    }
+
+    return normalized;
+  }
+
+  private createNotFoundError() {
+    return new NotFoundException({
+      message: 'Turtle not found.',
+      errorCode: ApiErrorCode.NOT_FOUND,
+    });
   }
 }

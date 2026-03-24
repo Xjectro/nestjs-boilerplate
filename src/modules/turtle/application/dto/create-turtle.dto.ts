@@ -10,9 +10,14 @@ export class CreateTurtleDto {
   @IsString()
   species!: string;
 
+  @ApiPropertyOptional({ example: 'leonardo' })
+  @IsOptional()
+  @IsString()
+  slug?: string;
+
   @ApiPropertyOptional({ example: 15, minimum: 0 })
   @IsOptional()
   @IsInt()
   @Min(0)
-  age!: number;
+  age?: number;
 }

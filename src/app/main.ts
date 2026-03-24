@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from '@/app/app.module';
+import { setupErrorHandling } from './bootstrap/errors';
+import { setupInterceptors } from './bootstrap/interceptors';
 import { setupLogging } from './bootstrap/logger';
 import { setupSecurity } from './bootstrap/security';
 import { setupSwagger } from './bootstrap/swagger';
@@ -14,7 +16,9 @@ export async function bootstrap() {
   await setupSecurity(app);
   setupValidation(app);
   setupSwagger(app);
+  setupErrorHandling(app);
   setupLogging(app);
+  setupInterceptors(app);
 
   /** Application Startup */
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Turtle, TurtleDocument } from '@/modules/turtle/domain/entities/turtle.schema';
 
-type TurtleWritableFields = Pick<Turtle, 'name' | 'species' | 'age'>;
+export type TurtleWritableFields = Pick<Turtle, 'name' | 'species' | 'age' | 'slug'>;
 
 @Injectable()
 export class TurtleRepository {
@@ -21,14 +21,18 @@ export class TurtleRepository {
   }
 
   findById(id: string) {
-    return this.turtleModel.findById(id).exec();
+    return this.turtleModel.findOne({ id }).exec();
+  }
+
+  findBySlug(slug: string) {
+    return this.turtleModel.findOne({ slug }).exec();
   }
 
   updateById(id: string, payload: Partial<TurtleWritableFields>) {
-    return this.turtleModel.findByIdAndUpdate(id, payload, { new: true }).exec();
+    return this.turtleModel.findOneAndUpdate({ id }, payload, { new: true }).exec();
   }
 
   removeById(id: string) {
-    return this.turtleModel.findByIdAndDelete(id).exec();
+    return this.turtleModel.findOneAndDelete({ id }).exec();
   }
 }

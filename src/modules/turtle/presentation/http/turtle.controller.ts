@@ -28,7 +28,7 @@ export class TurtleController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get turtle by id' })
-  @ApiParam({ name: 'id', description: 'Mongo object id' })
+  @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiResponse({ status: 200, description: 'Turtle retrieved successfully.' })
   findOne(@Param('id') id: string) {
     return this.turtleService.findOne(id);
@@ -36,7 +36,7 @@ export class TurtleController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update turtle by id' })
-  @ApiParam({ name: 'id', description: 'Mongo object id' })
+  @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiBody({ type: UpdateTurtleDto })
   @ApiResponse({ status: 200, description: 'Turtle updated successfully.' })
   updateTurtle(@Param('id') id: string, @Body() dto: UpdateTurtleDto) {
@@ -45,7 +45,7 @@ export class TurtleController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete turtle by id' })
-  @ApiParam({ name: 'id', description: 'Mongo object id' })
+  @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiResponse({ status: 200, description: 'Turtle deleted successfully.' })
   async removeTurtle(@Param('id') id: string) {
     const removed = await this.turtleService.remove(id);
