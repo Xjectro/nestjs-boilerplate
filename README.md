@@ -117,7 +117,7 @@ The `Makefile` wraps every docker compose flow so CI and developers use the same
 
 | Target                               | Description                                                                                                                                       |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `make test`.                         | Builds the test image and runs unit + e2e tests (`npm run test && npm run test:e2e`) in compose, automatically tearing everything down afterward. |
+| `make test`                          | Builds the test image and runs unit + e2e tests (`npm run test && npm run test:e2e`) in compose, automatically tearing everything down afterward. |
 | `make dev`                           | Bring up or tear down the dev stack (API + MongoDB + Redis + Seq + observability tooling).                                                        |
 | `make staging` / `make staging-down` | Run the staging config in detached mode.                                                                                                          |
 | `make prod` / `make prod-down`       | Run the production compose file in detached mode.                                                                                                 |
