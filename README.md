@@ -115,13 +115,13 @@ npm run build && npm run start:prod
 
 The `Makefile` wraps every docker compose flow so CI and developers use the same commands:
 
-| Target                                             | Description                                                                                                                                       |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `make docker-test`                                 | Builds the test image and runs unit + e2e tests (`npm run test && npm run test:e2e`) in compose, automatically tearing everything down afterward. |
-| `make docker-dev` / `make docker-dev-down`         | Bring up or tear down the dev stack (API + MongoDB + Redis + Seq + observability tooling).                                                        |
-| `make docker-staging` / `make docker-staging-down` | Run the staging config in detached mode.                                                                                                          |
-| `make docker-prod` / `make docker-prod-down`       | Run the production compose file in detached mode.                                                                                                 |
-| `make help`                                        | Lists every documented target.                                                                                                                    |
+| Target                               | Description                                                                                                                                       |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `make test`.                         | Builds the test image and runs unit + e2e tests (`npm run test && npm run test:e2e`) in compose, automatically tearing everything down afterward. |
+| `make dev`                           | Bring up or tear down the dev stack (API + MongoDB + Redis + Seq + observability tooling).                                                        |
+| `make staging` / `make staging-down` | Run the staging config in detached mode.                                                                                                          |
+| `make prod` / `make prod-down`       | Run the production compose file in detached mode.                                                                                                 |
+| `make help`                          | Lists every documented target.                                                                                                                    |
 
 ## Docker & Observability Stack
 
@@ -147,7 +147,7 @@ npm run lint        # ESLint with Prettier integration
 npm run test        # unit tests
 npm run test:e2e    # e2e suite under test/jest-e2e.json
 npm run test:cov    # coverage report
-make docker-test    # dockerized tests + dependencies
+make test           # dockerized tests + dependencies
 ```
 
 The dockerized suite is the source of truth for CI and mirrors production by running tests against
@@ -172,11 +172,11 @@ real MongoDB/Redis containers.
 
 ## Continuous Integration
 
-The workflow in `.github/workflows/docker-tests.yml` runs on every push/PR to `main`:
+The workflow in `.github/workflows/tests.yml` runs on every push/PR to `main`:
 
 1. Checks out the repository.
 2. Sets up Docker Buildx on `ubuntu-latest`.
-3. Executes `make docker-test`, guaranteeing parity with local docker-based testing.
+3. Executes `make test`, guaranteeing parity with local docker-based testing.
 
 ## License
 

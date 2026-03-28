@@ -1,12 +1,12 @@
+import * as crypto from 'crypto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 @Schema({ timestamps: true, id: false })
 export class Turtle {
   _id!: string;
 
-  @Prop({ type: String, unique: true, default: uuidv4 })
+  @Prop({ type: String, unique: true, default: crypto.randomUUID })
   id!: string;
 
   @Prop({ required: true })

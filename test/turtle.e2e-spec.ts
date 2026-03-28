@@ -1,9 +1,14 @@
-import { INestApplication } from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import type { Response } from 'supertest';
-import { App } from 'supertest/types';
 import { AppModule } from '@/app/app.module';
+import { setupErrorHandling } from '@/app/bootstrap/errors';
+import { setupInterceptors } from '@/app/bootstrap/interceptors';
+import { setupLogging } from '@/app/bootstrap/logger';
+import { setupSecurity } from '@/app/bootstrap/security';
+import { setupSwagger } from '@/app/bootstrap/swagger';
+import { setupValidation } from '@/app/bootstrap/validation';
 
 type TurtleResponse = {
   id: string;
@@ -106,7 +111,7 @@ const assertErrorPayload = (payload: unknown): ApiErrorPayload => {
 };
 
 describe('TurtleController (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: NestFastifyApplication;
 
   const nextIdempotencyKey = (() => {
     let counter = 0;
@@ -138,8 +143,21 @@ describe('TurtleController (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
+
+    await setupSecurity(app);
+    setupValidation(app);
+    setupSwagger(app);
+    setupErrorHandling(app);
+    setupLogging(app);
+    setupInterceptors(app);
+
     await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('rejects turtle creation without an idempotency key', async () => {

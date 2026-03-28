@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTurtleDto } from '@/modules/turtle/application/dto/create-turtle.dto';
 import { UpdateTurtleDto } from '@/modules/turtle/application/dto/update-turtle.dto';
@@ -30,7 +40,7 @@ export class TurtleController {
   @ApiOperation({ summary: 'Get turtle by id' })
   @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiResponse({ status: 200, description: 'Turtle retrieved successfully.' })
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.turtleService.findOne(id);
   }
 
@@ -39,7 +49,10 @@ export class TurtleController {
   @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiBody({ type: UpdateTurtleDto })
   @ApiResponse({ status: 200, description: 'Turtle updated successfully.' })
-  updateTurtle(@Param('id') id: string, @Body() dto: UpdateTurtleDto) {
+  updateTurtle(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() dto: UpdateTurtleDto,
+  ) {
     return this.turtleService.update(id, dto);
   }
 
@@ -47,7 +60,7 @@ export class TurtleController {
   @ApiOperation({ summary: 'Delete turtle by id' })
   @ApiParam({ name: 'id', description: 'Turtle UUID' })
   @ApiResponse({ status: 200, description: 'Turtle deleted successfully.' })
-  async removeTurtle(@Param('id') id: string) {
+  async removeTurtle(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     const removed = await this.turtleService.remove(id);
     return Boolean(removed);
   }
