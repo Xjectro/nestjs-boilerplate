@@ -9,6 +9,10 @@ import { setupLogging } from '@/app/bootstrap/logger';
 import { setupSecurity } from '@/app/bootstrap/security';
 import { setupSwagger } from '@/app/bootstrap/swagger';
 import { setupValidation } from '@/app/bootstrap/validation';
+import {
+  assertErrorPayload,
+  assertSuccessPayload,
+} from './utils/api-assertions';
 
 type TurtleResponse = {
   id: string;
@@ -17,24 +21,6 @@ type TurtleResponse = {
   species: string;
   age: number;
   slug: string;
-};
-
-type ApiSuccessPayload<T> = {
-  success: true;
-  data: T;
-  path: string;
-  timestamp: string;
-  requestId?: string | number;
-};
-
-type ApiErrorPayload = {
-  success: false;
-  errorCode: string;
-  message: string;
-  path: string;
-  timestamp: string;
-  requestId?: string | number;
-  details?: unknown;
 };
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -62,53 +48,6 @@ const assertTurtleResponseList = (payload: unknown): TurtleResponse[] => {
   return payload;
 };
 
-const assertSuccessPayload = <T>(payload: unknown): ApiSuccessPayload<T> => {
-  if (!isPlainObject(payload)) {
-    throw new Error('Response payload must be an object.');
-  }
-
-  if (payload.success !== true) {
-    throw new Error('Response payload is not a success envelope.');
-  }
-
-  if (!('data' in payload)) {
-    throw new Error('Success payload must include data.');
-  }
-
-  if (typeof payload.path !== 'string') {
-    throw new Error('Success payload path must be a string.');
-  }
-
-  if (typeof payload.timestamp !== 'string') {
-    throw new Error('Success payload timestamp must be a string.');
-  }
-
-  return payload as ApiSuccessPayload<T>;
-};
-
-const assertErrorPayload = (payload: unknown): ApiErrorPayload => {
-  if (!isPlainObject(payload)) {
-    throw new Error('Error payload must be an object.');
-  }
-
-  if (payload.success !== false) {
-    throw new Error('Error payload must have success=false.');
-  }
-
-  if (typeof payload.errorCode !== 'string') {
-    throw new Error('Error payload must include an error code.');
-  }
-
-  if (typeof payload.message !== 'string') {
-    throw new Error('Error payload must include a message.');
-  }
-
-  if (typeof payload.path !== 'string' || typeof payload.timestamp !== 'string') {
-    throw new Error('Error payload must include path and timestamp.');
-  }
-
-  return payload as ApiErrorPayload;
-};
 
 describe('TurtleController (e2e)', () => {
   let app: NestFastifyApplication;
