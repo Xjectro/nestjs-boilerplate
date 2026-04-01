@@ -44,17 +44,17 @@
 
 ### Domain modules
 
-- **Turtle Module** (`src/modules/turtle`): showcases the layered approach (application
-  service + DTOs, domain entity schema, cache + persistence repositories, HTTP controller).
-- **Health Module** (`src/modules/health`): exposes readiness/liveness endpoints backed by
-  MongoDB, Redis, and custom indicators.
+- **Turtle Module** (`src/modules/turtle`): showcases the layered approach (application service +
+  DTOs, domain entity schema, cache + persistence repositories, HTTP controller).
+- **Health Module** (`src/modules/health`): exposes readiness/liveness endpoints backed by MongoDB,
+  Redis, and custom indicators.
 
 ### Shared modules & libs
 
 - `src/shared/logging`: central logging module + interceptor configured for Seq.
 - `src/shared/monitoring`: Prometheus metrics module and interceptors.
-- `src/shared/interceptors/idempotency.interceptor.ts` and `src/libs/http/idempotency.ts`:
-  reusable HTTP idempotency utilities.
+- `src/shared/interceptors/idempotency.interceptor.ts` and `src/libs/http/idempotency.ts`: reusable
+  HTTP idempotency utilities.
 - `src/libs/cache`: cache key helpers reused across repositories/services.
 
 ## Repository Layout

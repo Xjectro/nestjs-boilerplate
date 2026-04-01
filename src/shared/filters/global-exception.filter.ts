@@ -1,3 +1,4 @@
+import { SeqLogger } from '@jasonsoft/nestjs-seq';
 import {
   ArgumentsHost,
   Catch,
@@ -12,7 +13,7 @@ import { ApiErrorCode, ApiErrorResponse } from '@/libs/http/response';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(GlobalExceptionFilter.name);
+  constructor(private readonly logger: SeqLogger) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     if (host.getType() !== 'http') {

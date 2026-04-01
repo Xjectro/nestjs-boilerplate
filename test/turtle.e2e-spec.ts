@@ -9,10 +9,7 @@ import { setupLogging } from '@/app/bootstrap/logger';
 import { setupSecurity } from '@/app/bootstrap/security';
 import { setupSwagger } from '@/app/bootstrap/swagger';
 import { setupValidation } from '@/app/bootstrap/validation';
-import {
-  assertErrorPayload,
-  assertSuccessPayload,
-} from './utils/api-assertions';
+import { assertErrorPayload, assertSuccessPayload } from './utils/api-assertions';
 
 type TurtleResponse = {
   id: string;
@@ -47,7 +44,6 @@ const assertTurtleResponseList = (payload: unknown): TurtleResponse[] => {
   }
   return payload;
 };
-
 
 describe('TurtleController (e2e)', () => {
   let app: NestFastifyApplication;
