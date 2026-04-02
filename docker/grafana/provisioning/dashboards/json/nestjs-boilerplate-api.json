@@ -7,7 +7,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -30,7 +30,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "sum by (route, method) (rate(http_requests_total[5m]))",
           "legendFormat": "{{method}} {{route}}",
           "refId": "A"
@@ -40,7 +40,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -70,7 +70,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "sum by (status) (rate(http_requests_total[5m]))",
           "legendFormat": "{{status}}",
           "refId": "A"
@@ -80,7 +80,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -103,7 +103,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "histogram_quantile(0.95, sum by (le, route, method) (rate(http_request_duration_seconds_bucket[5m])))",
           "legendFormat": "{{method}} {{route}}",
           "refId": "A"
@@ -113,7 +113,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -136,7 +136,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "sum by (route, method) (rate(http_request_duration_seconds_sum[5m])) / clamp_min(sum by (route, method) (rate(http_request_duration_seconds_count[5m])), 0.0001)",
           "legendFormat": "{{method}} {{route}}",
           "refId": "A"
@@ -146,7 +146,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -161,7 +161,7 @@
       "options": { "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Value" }] },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "sum by (route, method, status) (increase(http_requests_total[1h]))",
           "format": "table",
           "instant": true,

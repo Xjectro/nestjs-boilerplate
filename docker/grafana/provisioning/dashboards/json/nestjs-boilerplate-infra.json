@@ -7,7 +7,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "background" },
@@ -37,7 +37,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "mongodb_up",
           "legendFormat": "MongoDB",
           "refId": "A"
@@ -47,7 +47,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "background" },
@@ -77,7 +77,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "redis_up",
           "legendFormat": "Redis",
           "refId": "A"
@@ -87,7 +87,7 @@
       "type": "stat"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -105,13 +105,13 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "process_resident_memory_bytes",
           "legendFormat": "RSS",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "nodejs_heap_size_used_bytes",
           "legendFormat": "Heap used",
           "refId": "B"
@@ -121,7 +121,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -139,7 +139,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(process_cpu_seconds_total[5m])",
           "legendFormat": "CPU",
           "refId": "A"
@@ -149,7 +149,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -167,7 +167,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "redis_memory_used_bytes",
           "legendFormat": "Redis used memory",
           "refId": "A"
@@ -177,7 +177,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -195,7 +195,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(redis_commands_processed_total[5m])",
           "legendFormat": "Redis ops/sec",
           "refId": "A"
@@ -205,7 +205,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -223,7 +223,7 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "mongodb_ss_connections{conn_type=\"current\"}",
           "legendFormat": "Mongo current connections",
           "refId": "A"
@@ -233,7 +233,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+      "datasource": { "type": "prometheus", "uid": "nestmetrics" },
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -256,25 +256,25 @@
       },
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(mongodb_ss_opcounters_insert[5m])",
           "legendFormat": "insert",
           "refId": "A"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(mongodb_ss_opcounters_query[5m])",
           "legendFormat": "query",
           "refId": "B"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(mongodb_ss_opcounters_update[5m])",
           "legendFormat": "update",
           "refId": "C"
         },
         {
-          "datasource": { "type": "prometheus", "uid": "${DS_NESTMETRICS}" },
+          "datasource": { "type": "prometheus", "uid": "nestmetrics" },
           "expr": "rate(mongodb_ss_opcounters_delete[5m])",
           "legendFormat": "delete",
           "refId": "D"
