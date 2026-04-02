@@ -14,14 +14,15 @@ services:
     depends_on: !override
       redis-exporter:
         condition: service_started
-        
+
   api:
     image: nestjs-boilerplate:prod
     build:
       context: ..
       dockerfile: docker/images/api/Dockerfile.prod
+    command: ['sh', '-c', 'npm install && npm run start:prod']
     ports:
-      - '${PORT:-3000}:3000'
+      - '3000:3000'
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -30,8 +31,6 @@ services:
       SEQ_SERVER_URL: http://seq:5341
       SEQ_API_KEY: ''
     depends_on:
-      mongodb:
-        condition: service_healthy
       redis:
         condition: service_healthy
       seq:
