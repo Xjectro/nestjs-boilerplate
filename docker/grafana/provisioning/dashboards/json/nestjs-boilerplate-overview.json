@@ -249,13 +249,13 @@
   "refresh": "30s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["orqon", "overview"],
+  "tags": ["nestjs-boilerplate", "overview"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Orqon Overview",
-  "uid": "orqon-overview",
+  "title": "Nestjs Boilerplate Overview",
+  "uid": "nestjs-boilerplate-overview",
   "version": 1,
   "weekStart": ""
 }

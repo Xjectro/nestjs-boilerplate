@@ -287,13 +287,13 @@
   "refresh": "30s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["orqon", "infra"],
+  "tags": ["nestjs-boilerplate", "infra"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Orqon Infra",
-  "uid": "orqon-infra",
+  "title": "Nestjs Boilerplate Infra",
+  "uid": "nestjs-boilerplate-infra",
   "version": 1,
   "weekStart": ""
 }

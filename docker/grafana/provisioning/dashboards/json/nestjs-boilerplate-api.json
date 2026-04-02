@@ -182,13 +182,13 @@
   "refresh": "30s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["orqon", "api"],
+  "tags": ["nestjs-boilerplate", "api"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Orqon API",
-  "uid": "orqon-api",
+  "title": "Nestjs Boilerplate API",
+  "uid": "nestjs-boilerplate-api",
   "version": 1,
   "weekStart": ""
 }
