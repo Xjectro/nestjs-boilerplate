@@ -1,4 +1,20 @@
 services:
+  # MongoDB disabled - using remote MongoDB Atlas
+  mongodb:
+    profiles:
+      - disabled
+
+  # MongoDB exporter disabled - not needed without local MongoDB
+  mongodb-exporter:
+    profiles:
+      - disabled
+
+  # Prometheus depends on Redis exporter, but since we're using a remote MongoDB, we can skip the MongoDB exporter dependency
+  prometheus:
+    depends_on: !override
+      redis-exporter:
+        condition: service_started
+        
   api:
     image: nestjs-boilerplate:prod
     build:
