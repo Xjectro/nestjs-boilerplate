@@ -1,8 +1,7 @@
 services:
   mongodb:
-    command: ['--dbpath', '/tmp/mongodb-test']
-    tmpfs:
-      - /tmp/mongodb-test
+    volumes: []
+    
   tests:
     build:
       context: ..
