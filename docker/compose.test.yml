@@ -1,18 +1,13 @@
 services:
   mongodb:
     volumes: []
-    
+
   tests:
     build:
       context: ..
       dockerfile: docker/images/api/Dockerfile.test
-    environment:
-      NODE_ENV: test
-      MONGODB_URI: mongodb://mongodb:27017/turtles
-      REDIS_URL: redis://redis:6379
-      SEQ_SERVER_URL: http://seq:5341
-      SEQ_API_KEY: ''
-      E2E_USE_MEMORY_SERVER: 'false'
+    env_file:
+      - ./env/.env.test
     depends_on:
       mongodb:
         condition: service_healthy

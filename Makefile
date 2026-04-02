@@ -5,10 +5,12 @@ COMPOSE_STAGING := docker/compose.staging.yml
 COMPOSE_PROD := docker/compose.prod.yml
 COMPOSE_TEST := docker/compose.test.yml
 
-COMPOSE_TEST_CMD := $(COMPOSE) -f $(COMPOSE_BASE) -f $(COMPOSE_TEST)
-COMPOSE_DEV_CMD := $(COMPOSE) -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
-COMPOSE_STAGING_CMD := $(COMPOSE) -f $(COMPOSE_BASE) -f $(COMPOSE_STAGING)
-COMPOSE_PROD_CMD := $(COMPOSE) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
+ENV_DIR := docker/env
+
+COMPOSE_TEST_CMD := $(COMPOSE) --env-file $(ENV_DIR)/.env.test -f $(COMPOSE_BASE) -f $(COMPOSE_TEST)
+COMPOSE_DEV_CMD := $(COMPOSE) --env-file $(ENV_DIR)/.env.dev -f $(COMPOSE_BASE) -f $(COMPOSE_DEV)
+COMPOSE_STAGING_CMD := $(COMPOSE) --env-file $(ENV_DIR)/.env.staging -f $(COMPOSE_BASE) -f $(COMPOSE_STAGING)
+COMPOSE_PROD_CMD := $(COMPOSE) --env-file $(ENV_DIR)/.env.prod -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
 
 .PHONY: test dev staging staging-down prod prod-down
 
