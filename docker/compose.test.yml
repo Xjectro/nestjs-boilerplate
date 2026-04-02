@@ -1,4 +1,8 @@
 services:
+  mongodb:
+    volumes: []
+    tmpfs:
+      - /data/db
   tests:
     build:
       context: ..
