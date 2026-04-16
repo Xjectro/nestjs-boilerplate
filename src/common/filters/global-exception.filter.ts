@@ -33,7 +33,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       this.logger.error(payload.message, stack);
     }
 
-    response.status(normalized.status).send(payload);
+    response.code(normalized.status).send(payload);
   }
 
   private normalizeError(exception: unknown): {
