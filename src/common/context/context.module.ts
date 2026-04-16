@@ -1,6 +1,6 @@
-import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import * as crypto from 'crypto';
+import { Global, Module } from '@nestjs/common';
 import { ClsModule } from 'nestjs-cls';
-import { CorrelationIdMiddleware } from './correlation-id.middleware';
 import { RequestContext } from './request-context.service';
 
 @Global()
@@ -8,14 +8,22 @@ import { RequestContext } from './request-context.service';
   imports: [
     ClsModule.forRoot({
       global: true,
-      middleware: { mount: false },
+      interceptor: {
+        mount: true,
+        setup: (cls, context) => {
+          const req = context.switchToHttp().getRequest();
+          const existing = req.headers?.['x-correlation-id'];
+          const correlationId =
+            (Array.isArray(existing) ? existing[0] : existing) ?? crypto.randomUUID();
+          cls.set('correlationId', correlationId);
+          if (req.headers) {
+            req.headers['x-correlation-id'] = correlationId;
+          }
+        },
+      },
     }),
   ],
-  providers: [RequestContext, CorrelationIdMiddleware],
+  providers: [RequestContext],
   exports: [RequestContext],
 })
-export class ContextModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
-  }
-}
+export class ContextModule {}
