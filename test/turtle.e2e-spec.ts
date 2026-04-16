@@ -1,14 +1,15 @@
+import helmet from '@fastify/helmet';
+import { ConsoleSeqLogger, SeqLogger } from '@jasonsoft/nestjs-seq';
+import { ValidationPipe } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import type { Response } from 'supertest';
-import { AppModule } from '@/app/app.module';
-import { setupErrorHandling } from '@/app/bootstrap/errors';
-import { setupInterceptors } from '@/app/bootstrap/interceptors';
-import { setupLogging } from '@/app/bootstrap/logger';
-import { setupSecurity } from '@/app/bootstrap/security';
-import { setupSwagger } from '@/app/bootstrap/swagger';
-import { setupValidation } from '@/app/bootstrap/validation';
+import { AppModule } from '@/app.module';
+import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter';
+import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { assertErrorPayload, assertSuccessPayload } from './utils/api-assertions';
 
 type TurtleResponse = {
@@ -80,12 +81,28 @@ describe('TurtleController (e2e)', () => {
 
     app = moduleFixture.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
 
-    await setupSecurity(app);
-    setupValidation(app);
-    setupSwagger(app);
-    setupErrorHandling(app);
-    setupLogging(app);
-    setupInterceptors(app);
+    await app.register(helmet, { contentSecurityPolicy: false });
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
+
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('NestJS Boilerplate')
+      .setDescription('The NestJS Boilerplate API description')
+      .setVersion('1.0')
+      .build();
+    const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('docs', app, documentFactory);
+
+    const seqLogger = app.get(SeqLogger);
+    app.useGlobalFilters(new GlobalExceptionFilter(seqLogger));
+    app.useLogger(app.get(ConsoleSeqLogger));
+    app.useGlobalInterceptors(app.get(LoggingInterceptor), app.get(ResponseInterceptor));
 
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
@@ -164,7 +181,7 @@ describe('TurtleController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .patch(`/turtle/${turtle.id}`)
-      .send({ id: turtle.id, name: 'Casey Jones', age: 21 })
+      .send({ name: 'Casey Jones', age: 21 })
       .expect(200);
     const envelope = assertSuccessPayload<TurtleResponse>(response.body as unknown);
     const updatedTurtle = assertTurtleResponse(envelope.data);

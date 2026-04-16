@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TurtleService } from '@/modules/turtle/application/turtle.service';
-import { Turtle, TurtleSchema } from '@/modules/turtle/domain/entities/turtle.schema';
-import { TurtleCacheRepository } from '@/modules/turtle/infrastructure/persistence/turtle.cache.repository';
-import { TurtleRepository } from '@/modules/turtle/infrastructure/persistence/turtle.repository';
-import { TurtleController } from '@/modules/turtle/presentation/http/turtle.controller';
+import { Turtle, TurtleSchema } from './entities/turtle.schema';
+import { TurtleEventListeners } from './events/turtle.listeners';
+import { TurtleCacheRepository } from './turtle.cache-repository';
+import { TurtleController } from './turtle.controller';
+import { TurtleRepository } from './turtle.repository';
+import { TurtleSeeder } from './turtle.seeder';
+import { TurtleService } from './turtle.service';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Turtle.name, schema: TurtleSchema }])],
   controllers: [TurtleController],
-  providers: [TurtleService, TurtleRepository, TurtleCacheRepository],
+  providers: [TurtleService, TurtleRepository, TurtleCacheRepository, TurtleEventListeners, TurtleSeeder],
+  exports: [TurtleSeeder],
 })
 export class TurtleModule {}

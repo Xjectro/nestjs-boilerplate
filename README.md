@@ -1,183 +1,186 @@
 # NestJS Boilerplate
 
-> A production-ready NestJS 11 service template that ships with Fastify, MongoDB, Redis caching,
-> rate limiting, structured logging, observability, and Docker-first workflows.
+> A production-ready NestJS 11 service template built on Fastify, MongoDB, Redis caching,
+> rate limiting, structured logging (Seq), observability (Prometheus + Grafana), and Docker-first workflows.
 
 ## Feature Highlights
 
-- **Fastify-powered HTTP layer** with hardened security headers (Helmet), global validation pipes,
-  and an auto-generated Swagger UI exposed at `/docs`.
-- **Opinionated module layout** (`health`, `turtle`, shared logging/monitoring) that separates
-  application, domain, infrastructure, and presentation layers.
-- **MongoDB + Redis** wired through `MongooseModule` and `CacheModule` (automatic fallback to
-  in-memory caching when Redis is unavailable).
-- **Cross-cutting concerns baked in:** logging interceptor that streams to Seq, metrics interceptor,
-  throttling guard, and idempotency utilities.
-- **Full Docker Compose stack** with MongoDB, Redis, Seq, Prometheus, Grafana, and dedicated images
-  for dev, staging, prod, and test workflows.
-- **CI-ready** via GitHub Actions (`docker-tests` workflow) that runs the dockerized unit + e2e
-  suite just like local developers do.
+| Category                 | Features                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| **HTTP**                 | Fastify adapter, Helmet security headers, global `ValidationPipe`, Swagger UI at `/docs`                   |
+| **Data**                 | MongoDB via Mongoose, Redis cache (`cache-manager-redis-yet`), soft-delete plugin, pagination helper       |
+| **Resilience**           | Rate limiting (`ThrottlerGuard`), idempotency interceptor, graceful shutdown hooks                         |
+| **Observability**        | Seq structured logging, Prometheus metrics + Grafana dashboards, correlation ID per request                |
+| **Architecture**         | Zod-validated env config, event-driven (`@nestjs/event-emitter`), request context via CLS (AsyncLocalStorage) |
+| **Developer Experience** | Database seeder CLI, Docker Compose stacks (dev/staging/prod/test), CI via GitHub Actions                  |
 
 ## Architecture Overview
 
-### Application bootstrap
+### Bootstrap (`src/bootstrap.ts`)
 
-- `src/main.ts` simply re-exports `bootstrap()` from `src/app/main.ts` to keep the entry-point
-  minimal.
-- `bootstrap()` spins up a `NestFastifyApplication`, registers security/validation/swagger/logging
-  helpers, and listens on `PORT` (default `3000`).
+Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 
-### App module (`src/app/app.module.ts`)
+- Helmet (CSP disabled for APIs)
+- `ValidationPipe` with whitelist + transform
+- Swagger at `/docs`
+- `GlobalExceptionFilter` with `SeqLogger`
+- `ConsoleSeqLogger` as the application logger
+- `LoggingInterceptor` + `ResponseInterceptor` (both DI-resolved)
+- Graceful shutdown hooks
+- Listens on `PORT` from `ConfigService`
 
-- Connects to MongoDB using `MONGODB_URI` and enables caching via `cache-manager-redis-yet` with TTL
-  driven by `CACHE_TTL`.
-- Adds a `ThrottlerGuard` globally (window + limit configured through env vars).
-- Imports domain modules (`TurtleModule`, `HealthModule`) plus shared infrastructure
-  (`LoggerModule`, `MonitoringModule`).
+### App Module (`src/app.module.ts`)
 
-### Bootstrap helpers (`src/app/bootstrap/*`)
+- `ConfigModule` — global, validates `.env` with Zod schema (`src/common/config/env.schema.ts`)
+- `ContextModule` — global, provides `RequestContext` (CLS) + `CorrelationIdMiddleware`
+- `EventEmitterModule` — in-process event bus
+- `MongooseModule` — connects via `MONGODB_URI`
+- `CacheModule` — Redis with `CACHE_TTL`, falls back to in-memory
+- `ThrottlerModule` — rate limiting via `THROTTLE_TTL` / `THROTTLE_LIMIT`
+- `LoggerModule` — Seq structured logging
+- `MonitoringModule` — Prometheus metrics interceptor
+- Domain modules: `TurtleModule`, `HealthModule`
 
-- `logger.ts`: binds the `ConsoleSeqLogger` and a global `LoggingInterceptor` for structured logs.
-- `security.ts`: registers Helmet with CSP disabled (suitable for APIs).
-- `swagger.ts`: exposes OpenAPI docs named "NestJS Boilerplate" at `/docs`.
-- `validation.ts`: enforces DTO shape with `ValidationPipe` (whitelisting + transformation).
+### Common (`src/common/`)
 
-### Domain modules
+| Directory        | Purpose                                                                    |
+| ---------------- | -------------------------------------------------------------------------- |
+| `config/`        | Zod env schema, `EnvConfig` type, `ConfigModule` setup                    |
+| `context/`       | `ContextModule`, `CorrelationIdMiddleware`, `RequestContext` service (CLS) |
+| `pagination/`    | `PaginationQueryDto`, `paginate()` helper, `PaginatedResponse<T>` type    |
+| `database/`      | Mongoose soft-delete plugin (`deletedAt`, `softDelete()`, `restore()`)    |
+| `filters/`       | `GlobalExceptionFilter` with `ApiErrorCode` mapping                       |
+| `interceptors/`  | Logging, response envelope, idempotency, metrics interceptors             |
+| `http/`          | `ApiSuccessResponse`, `ApiErrorResponse`, idempotency utilities           |
+| `cache/`         | Shared cache key helpers                                                  |
+| `modules/`       | `LoggerModule` (Seq), `MonitoringModule` (Prometheus)                     |
 
-- **Turtle Module** (`src/modules/turtle`): showcases the layered approach (application service +
-  DTOs, domain entity schema, cache + persistence repositories, HTTP controller).
-- **Health Module** (`src/modules/health`): exposes readiness/liveness endpoints backed by MongoDB,
-  Redis, and custom indicators.
+### Domain Modules (`src/modules/`)
 
-### Shared modules & libs
-
-- `src/shared/logging`: central logging module + interceptor configured for Seq.
-- `src/shared/monitoring`: Prometheus metrics module and interceptors.
-- `src/shared/interceptors/idempotency.interceptor.ts` and `src/libs/http/idempotency.ts`: reusable
-  HTTP idempotency utilities.
-- `src/libs/cache`: cache key helpers reused across repositories/services.
+- **Turtle** — Full CRUD with pagination, soft delete, Redis caching, event emitting, and a database seeder.
+- **Health** — Liveness (`/health`) and readiness (`/health/ready`) endpoints with MongoDB, Redis, and memory indicators.
 
 ## Repository Layout
 
 ```
 ├── docker/
 │   ├── compose.{base,dev,staging,prod,test}.yml
-│   ├── images/api/Dockerfile.{dev,prod,staging,test}
-│   └── grafana + prometheus provisioning
+│   ├── env/                       # .env.dev, .env.staging, .env.prod, .env.test
+│   ├── images/api/                # Dockerfile.{dev,prod,staging,test}
+│   ├── grafana/provisioning/      # dashboards + datasources
+│   └── prometheus/                # prometheus.yml
 ├── src/
-│   ├── main.ts
-│   ├── app/
-│   │   ├── main.ts (bootstrap)
-│   │   ├── bootstrap/ (logger, security, swagger, validation)
-│   │   ├── modules/
-│   │   │   ├── health/
-│   │   │   └── turtle/
-│   │   └── shared/ (logging, monitoring, interceptors)
-│   └── app/libs/ (cache + http helpers)
+│   ├── main.ts                    # entry point
+│   ├── bootstrap.ts               # app bootstrap
+│   ├── app.module.ts              # root module
+│   ├── seed.ts                    # database seeder CLI
+│   ├── common/
+│   │   ├── config/                # Zod env validation
+│   │   ├── context/               # CLS + correlation ID
+│   │   ├── pagination/            # pagination DTO + helper
+│   │   ├── database/              # soft-delete plugin
+│   │   ├── filters/               # global exception filter
+│   │   ├── interceptors/          # logging, response, idempotency, metrics
+│   │   ├── http/                  # response types, request helpers
+│   │   ├── cache/                 # cache key builders
+│   │   └── modules/               # logger (Seq), monitoring (Prometheus)
+│   └── modules/
+│       ├── health/                # health + readiness controller
+│       └── turtle/                # CRUD module (service, repo, cache, events, seeder)
 ├── test/
-│   └── turtle.e2e-spec.ts
+│   ├── turtle.e2e-spec.ts
+│   └── utils/                     # test assertion helpers
 ├── Makefile
-└── .github/workflows/docker-tests.yml
+└── .github/workflows/
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js ≥ 20 (the Docker images use Node 22-slim).
-- npm 10+
-- Docker Desktop (or compatible engine) for the compose stacks.
+- **Node.js** ≥ 20 (Docker images use Node 22-slim)
+- **npm** 10+
+- **Docker Desktop** (or compatible engine) for compose stacks
 
-### Install dependencies
+### Install & Run
 
 ```bash
+# install
 npm install
-```
 
-### Run the API
-
-```bash
-# development (watch)
+# development (watch mode)
 npm run start:dev
 
-# production build
+# production
 npm run build && npm run start:prod
+
+# seed database
+npm run seed
 ```
 
-### Environment configuration
+### Environment Configuration
 
-1. Create a `.env` file at the repository root.
-2. Provide MongoDB/Redis credentials plus the optional Seq/Prometheus settings below.
-3. `npm run start:dev` reads values from your shell; `docker compose` loads them from the root
-   `.env` file.
+Create a `.env` file at the repository root. All variables are validated at startup via Zod — the app will fail fast with clear error messages if required values are missing or malformed.
+
+## npm Scripts
+
+| Script              | Description                            |
+| ------------------- | -------------------------------------- |
+| `npm run start:dev` | Start in watch mode                    |
+| `npm run build`     | Compile TypeScript                     |
+| `npm run start:prod`| Run compiled output                    |
+| `npm run seed`      | Seed the database with sample data     |
+| `npm run lint`      | ESLint with auto-fix                   |
+| `npm run format`    | Prettier format                        |
+| `npm run test`      | Run unit tests                         |
+| `npm run test:e2e`  | Run e2e tests                          |
+| `npm run test:cov`  | Coverage report                        |
 
 ## Make Targets
 
-The `Makefile` wraps every docker compose flow so CI and developers use the same commands:
-
-| Target                               | Description                                                                                                                                       |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `make test`                          | Builds the test image and runs unit + e2e tests (`npm run test && npm run test:e2e`) in compose, automatically tearing everything down afterward. |
-| `make dev`                           | Bring up or tear down the dev stack (API + MongoDB + Redis + Seq + observability tooling).                                                        |
-| `make staging` / `make staging-down` | Run the staging config in detached mode.                                                                                                          |
-| `make prod` / `make prod-down`       | Run the production compose file in detached mode.                                                                                                 |
-| `make help`                          | Lists every documented target.                                                                                                                    |
+| Target                               | Description                                                                 |
+| ------------------------------------ | --------------------------------------------------------------------------- |
+| `make test`                          | Dockerized unit + e2e tests with real MongoDB/Redis                         |
+| `make dev`                           | Dev stack (API + MongoDB + Redis + Seq + Prometheus + Grafana)              |
+| `make staging` / `make staging-down` | Staging stack (detached)                                                    |
+| `make prod` / `make prod-down`       | Production stack (detached)                                                 |
 
 ## Docker & Observability Stack
 
-`docker/compose.base.yml` defines the core services shared by all environments:
+`docker/compose.base.yml` defines shared services:
 
-- **MongoDB 7** with persistent `mongo-data` volume.
-- **Redis 7** plus an exporter consumed by Prometheus.
-- **Seq** (HTTP on `8081`, ingestion on `5341`) for structured logs emitted by the logging
-  interceptor.
-- **Prometheus + Grafana** pre-configured via the files under `docker/prometheus` and
-  `docker/grafana`.
+- **MongoDB 7** — persistent `mongo-data` volume
+- **Redis 7** — plus exporter for Prometheus
+- **Seq** — structured log ingestion (HTTP `8081`, ingestion `5341`)
+- **Prometheus + Grafana** — pre-provisioned dashboards and datasources
 
-Environment-specific files extend the base stack:
-
-- `compose.dev.yml`, `compose.staging.yml`, `compose.prod.yml`: choose the appropriate API
-  Dockerfile and runtime flags.
-- `compose.test.yml`: adds the `tests` service that blocks until all tests pass.
-
-## Testing Strategy
-
-```bash
-npm run lint        # ESLint with Prettier integration
-npm run test        # unit tests
-npm run test:e2e    # e2e suite under test/jest-e2e.json
-npm run test:cov    # coverage report
-make test           # dockerized tests + dependencies
-```
-
-The dockerized suite is the source of truth for CI and mirrors production by running tests against
-real MongoDB/Redis containers.
+Environment-specific compose files (`dev`, `staging`, `prod`, `test`) extend the base with the appropriate Dockerfile and runtime flags.
 
 ## Environment Variables
 
-| Variable                   | Default                             | Purpose                                                     |
-| -------------------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `PORT`                     | `3000`                              | Fastify listen port.                                        |
-| `MONGODB_URI`              | `mongodb://127.0.0.1:27017/turtles` | Connection string consumed by `MongooseModule`.             |
-| `REDIS_URL`                | `redis://127.0.0.1:6379`            | Cache + health indicator connection string.                 |
-| `CACHE_TTL`                | `5`                                 | Cache TTL in seconds.                                       |
-| `SEQ_SERVER_URL`           | _unset_                             | Seq ingestion endpoint; when unset logs stay in stdout.     |
-| `SEQ_API_KEY`              | _unset_                             | Seq API key if authentication is enabled.                   |
-| `SEQ_MIN_LEVEL`            | `Information`                       | Minimum log level forwarded to Seq.                         |
-| `THROTTLE_TTL`             | `60`                                | Rate-limiting window in seconds.                            |
-| `THROTTLE_LIMIT`           | `100`                               | Requests allowed per IP per window.                         |
-| `HEALTH_HEAP_THRESHOLD_MB` | `150`                               | Max heap size before the healthcheck fails.                 |
-| `HEALTH_RSS_THRESHOLD_MB`  | `300`                               | Max RSS before the healthcheck fails.                       |
-| `E2E_USE_MEMORY_SERVER`    | `false`                             | When `true`, e2e tests rely on an in-memory MongoDB server. |
+| Variable                     | Default                              | Purpose                                |
+| ---------------------------- | ------------------------------------ | -------------------------------------- |
+| `NODE_ENV`                   | `development`                        | Runtime environment                    |
+| `PORT`                       | `3000`                               | Fastify listen port                    |
+| `MONGODB_URI`                | `mongodb://127.0.0.1:27017/turtles`  | MongoDB connection string              |
+| `REDIS_URL`                  | `redis://127.0.0.1:6379`             | Redis connection string                |
+| `CACHE_TTL`                  | `5`                                  | Cache TTL in seconds                   |
+| `THROTTLE_TTL`               | `60`                                 | Rate-limit window (seconds)            |
+| `THROTTLE_LIMIT`             | `100`                                | Requests per IP per window             |
+| `HEALTH_HEAP_THRESHOLD_MB`   | `150`                                | Max heap before health check fails     |
+| `HEALTH_RSS_THRESHOLD_MB`    | `300`                                | Max RSS before health check fails      |
+| `SEQ_SERVER_URL`             | —                                    | Seq ingestion endpoint (optional)      |
+| `SEQ_API_KEY`                | —                                    | Seq API key (optional)                 |
+| `SEQ_SERVICE_NAME`           | `nestjs-boilerplate`                 | Service name sent to Seq               |
+| `PROMETHEUS_METRICS_PATH`    | `metrics`                            | Prometheus scrape path                 |
 
 ## Continuous Integration
 
-The workflow in `.github/workflows/tests.yml` runs on every push/PR to `main`:
+`.github/workflows/tests.yml` runs on every push/PR to `main`:
 
-1. Checks out the repository.
-2. Sets up Docker Buildx on `ubuntu-latest`.
-3. Executes `make test`, guaranteeing parity with local docker-based testing.
+1. Checkout → Docker Buildx setup → `make test`
+2. Tests run against real MongoDB/Redis containers, matching production parity.
 
 ## License
 
-This project is distributed under the MIT License. See `LICENSE` for details.
+MIT — see [LICENSE](LICENSE) for details.
