@@ -46,12 +46,14 @@ export class TurtleRepository {
   }
 
   softDeleteById(id: string) {
-    return this.turtleModel.findOneAndUpdate({ id }, { deletedAt: new Date() }, { new: true }).exec();
+    return this.turtleModel
+      .findOneAndUpdate({ id }, { deletedAt: new Date() }, { new: true })
+      .exec();
   }
 
   restoreById(id: string) {
     return this.turtleModel
-      .findOneAndUpdate({ id, includeDeleted: true } as any, { deletedAt: null }, { new: true })
+      .findOneAndUpdate({ id, includeDeleted: true }, { deletedAt: null }, { new: true })
       .exec();
   }
 }

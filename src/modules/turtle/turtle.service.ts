@@ -35,7 +35,11 @@ export class TurtleService {
     await this.turtleCache.evictList();
     const cacheId = this.resolveCacheId(created);
     await this.turtleCache.setOne(cacheId, created);
-    this.eventEmitter.emit(TURTLE_EVENTS.CREATED, { id: cacheId, name: payload.name, slug: payload.slug });
+    this.eventEmitter.emit(TURTLE_EVENTS.CREATED, {
+      id: cacheId,
+      name: payload.name,
+      slug: payload.slug,
+    });
     return created;
   }
 

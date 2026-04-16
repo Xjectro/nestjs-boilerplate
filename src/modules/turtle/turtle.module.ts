@@ -11,7 +11,13 @@ import { TurtleService } from './turtle.service';
 @Module({
   imports: [MongooseModule.forFeature([{ name: Turtle.name, schema: TurtleSchema }])],
   controllers: [TurtleController],
-  providers: [TurtleService, TurtleRepository, TurtleCacheRepository, TurtleEventListeners, TurtleSeeder],
+  providers: [
+    TurtleService,
+    TurtleRepository,
+    TurtleCacheRepository,
+    TurtleEventListeners,
+    TurtleSeeder,
+  ],
   exports: [TurtleSeeder],
 })
 export class TurtleModule {}

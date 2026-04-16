@@ -1,18 +1,19 @@
 # NestJS Boilerplate
 
-> A production-ready NestJS 11 service template built on Fastify, MongoDB, Redis caching,
-> rate limiting, structured logging (Seq), observability (Prometheus + Grafana), and Docker-first workflows.
+> A production-ready NestJS 11 service template built on Fastify, MongoDB, Redis caching, rate
+> limiting, structured logging (Seq), observability (Prometheus + Grafana), and Docker-first
+> workflows.
 
 ## Feature Highlights
 
-| Category                 | Features                                                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **HTTP**                 | Fastify adapter, Helmet security headers, global `ValidationPipe`, Swagger UI at `/docs`                   |
-| **Data**                 | MongoDB via Mongoose, Redis cache (`cache-manager-redis-yet`), soft-delete plugin, pagination helper       |
-| **Resilience**           | Rate limiting (`ThrottlerGuard`), idempotency interceptor, graceful shutdown hooks                         |
-| **Observability**        | Seq structured logging, Prometheus metrics + Grafana dashboards, correlation ID per request                |
+| Category                 | Features                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| **HTTP**                 | Fastify adapter, Helmet security headers, global `ValidationPipe`, Swagger UI at `/docs`                      |
+| **Data**                 | MongoDB via Mongoose, Redis cache (`cache-manager-redis-yet`), soft-delete plugin, pagination helper          |
+| **Resilience**           | Rate limiting (`ThrottlerGuard`), idempotency interceptor, graceful shutdown hooks                            |
+| **Observability**        | Seq structured logging, Prometheus metrics + Grafana dashboards, correlation ID per request                   |
 | **Architecture**         | Zod-validated env config, event-driven (`@nestjs/event-emitter`), request context via CLS (AsyncLocalStorage) |
-| **Developer Experience** | Database seeder CLI, Docker Compose stacks (dev/staging/prod/test), CI via GitHub Actions                  |
+| **Developer Experience** | Database seeder CLI, Docker Compose stacks (dev/staging/prod/test), CI via GitHub Actions                     |
 
 ## Architecture Overview
 
@@ -43,22 +44,24 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 
 ### Common (`src/common/`)
 
-| Directory        | Purpose                                                                    |
-| ---------------- | -------------------------------------------------------------------------- |
-| `config/`        | Zod env schema, `EnvConfig` type, `ConfigModule` setup                    |
-| `context/`       | `ContextModule`, `CorrelationIdMiddleware`, `RequestContext` service (CLS) |
-| `pagination/`    | `PaginationQueryDto`, `paginate()` helper, `PaginatedResponse<T>` type    |
-| `database/`      | Mongoose soft-delete plugin (`deletedAt`, `softDelete()`, `restore()`)    |
-| `filters/`       | `GlobalExceptionFilter` with `ApiErrorCode` mapping                       |
-| `interceptors/`  | Logging, response envelope, idempotency, metrics interceptors             |
-| `http/`          | `ApiSuccessResponse`, `ApiErrorResponse`, idempotency utilities           |
-| `cache/`         | Shared cache key helpers                                                  |
-| `modules/`       | `LoggerModule` (Seq), `MonitoringModule` (Prometheus)                     |
+| Directory       | Purpose                                                                    |
+| --------------- | -------------------------------------------------------------------------- |
+| `config/`       | Zod env schema, `EnvConfig` type, `ConfigModule` setup                     |
+| `context/`      | `ContextModule`, `CorrelationIdMiddleware`, `RequestContext` service (CLS) |
+| `pagination/`   | `PaginationQueryDto`, `paginate()` helper, `PaginatedResponse<T>` type     |
+| `database/`     | Mongoose soft-delete plugin (`deletedAt`, `softDelete()`, `restore()`)     |
+| `filters/`      | `GlobalExceptionFilter` with `ApiErrorCode` mapping                        |
+| `interceptors/` | Logging, response envelope, idempotency, metrics interceptors              |
+| `http/`         | `ApiSuccessResponse`, `ApiErrorResponse`, idempotency utilities            |
+| `cache/`        | Shared cache key helpers                                                   |
+| `modules/`      | `LoggerModule` (Seq), `MonitoringModule` (Prometheus)                      |
 
 ### Domain Modules (`src/modules/`)
 
-- **Turtle** — Full CRUD with pagination, soft delete, Redis caching, event emitting, and a database seeder.
-- **Health** — Liveness (`/health`) and readiness (`/health/ready`) endpoints with MongoDB, Redis, and memory indicators.
+- **Turtle** — Full CRUD with pagination, soft delete, Redis caching, event emitting, and a database
+  seeder.
+- **Health** — Liveness (`/health`) and readiness (`/health/ready`) endpoints with MongoDB, Redis,
+  and memory indicators.
 
 ## Repository Layout
 
@@ -120,30 +123,31 @@ npm run seed
 
 ### Environment Configuration
 
-Create a `.env` file at the repository root. All variables are validated at startup via Zod — the app will fail fast with clear error messages if required values are missing or malformed.
+Create a `.env` file at the repository root. All variables are validated at startup via Zod — the
+app will fail fast with clear error messages if required values are missing or malformed.
 
 ## npm Scripts
 
-| Script              | Description                            |
-| ------------------- | -------------------------------------- |
-| `npm run start:dev` | Start in watch mode                    |
-| `npm run build`     | Compile TypeScript                     |
-| `npm run start:prod`| Run compiled output                    |
-| `npm run seed`      | Seed the database with sample data     |
-| `npm run lint`      | ESLint with auto-fix                   |
-| `npm run format`    | Prettier format                        |
-| `npm run test`      | Run unit tests                         |
-| `npm run test:e2e`  | Run e2e tests                          |
-| `npm run test:cov`  | Coverage report                        |
+| Script               | Description                        |
+| -------------------- | ---------------------------------- |
+| `npm run start:dev`  | Start in watch mode                |
+| `npm run build`      | Compile TypeScript                 |
+| `npm run start:prod` | Run compiled output                |
+| `npm run seed`       | Seed the database with sample data |
+| `npm run lint`       | ESLint with auto-fix               |
+| `npm run format`     | Prettier format                    |
+| `npm run test`       | Run unit tests                     |
+| `npm run test:e2e`   | Run e2e tests                      |
+| `npm run test:cov`   | Coverage report                    |
 
 ## Make Targets
 
-| Target                               | Description                                                                 |
-| ------------------------------------ | --------------------------------------------------------------------------- |
-| `make test`                          | Dockerized unit + e2e tests with real MongoDB/Redis                         |
-| `make dev`                           | Dev stack (API + MongoDB + Redis + Seq + Prometheus + Grafana)              |
-| `make staging` / `make staging-down` | Staging stack (detached)                                                    |
-| `make prod` / `make prod-down`       | Production stack (detached)                                                 |
+| Target                               | Description                                                    |
+| ------------------------------------ | -------------------------------------------------------------- |
+| `make test`                          | Dockerized unit + e2e tests with real MongoDB/Redis            |
+| `make dev`                           | Dev stack (API + MongoDB + Redis + Seq + Prometheus + Grafana) |
+| `make staging` / `make staging-down` | Staging stack (detached)                                       |
+| `make prod` / `make prod-down`       | Production stack (detached)                                    |
 
 ## Docker & Observability Stack
 
@@ -154,25 +158,26 @@ Create a `.env` file at the repository root. All variables are validated at star
 - **Seq** — structured log ingestion (HTTP `8081`, ingestion `5341`)
 - **Prometheus + Grafana** — pre-provisioned dashboards and datasources
 
-Environment-specific compose files (`dev`, `staging`, `prod`, `test`) extend the base with the appropriate Dockerfile and runtime flags.
+Environment-specific compose files (`dev`, `staging`, `prod`, `test`) extend the base with the
+appropriate Dockerfile and runtime flags.
 
 ## Environment Variables
 
-| Variable                     | Default                              | Purpose                                |
-| ---------------------------- | ------------------------------------ | -------------------------------------- |
-| `NODE_ENV`                   | `development`                        | Runtime environment                    |
-| `PORT`                       | `3000`                               | Fastify listen port                    |
-| `MONGODB_URI`                | `mongodb://127.0.0.1:27017/turtles`  | MongoDB connection string              |
-| `REDIS_URL`                  | `redis://127.0.0.1:6379`             | Redis connection string                |
-| `CACHE_TTL`                  | `5`                                  | Cache TTL in seconds                   |
-| `THROTTLE_TTL`               | `60`                                 | Rate-limit window (seconds)            |
-| `THROTTLE_LIMIT`             | `100`                                | Requests per IP per window             |
-| `HEALTH_HEAP_THRESHOLD_MB`   | `150`                                | Max heap before health check fails     |
-| `HEALTH_RSS_THRESHOLD_MB`    | `300`                                | Max RSS before health check fails      |
-| `SEQ_SERVER_URL`             | —                                    | Seq ingestion endpoint (optional)      |
-| `SEQ_API_KEY`                | —                                    | Seq API key (optional)                 |
-| `SEQ_SERVICE_NAME`           | `nestjs-boilerplate`                 | Service name sent to Seq               |
-| `PROMETHEUS_METRICS_PATH`    | `metrics`                            | Prometheus scrape path                 |
+| Variable                   | Default                             | Purpose                            |
+| -------------------------- | ----------------------------------- | ---------------------------------- |
+| `NODE_ENV`                 | `development`                       | Runtime environment                |
+| `PORT`                     | `3000`                              | Fastify listen port                |
+| `MONGODB_URI`              | `mongodb://127.0.0.1:27017/turtles` | MongoDB connection string          |
+| `REDIS_URL`                | `redis://127.0.0.1:6379`            | Redis connection string            |
+| `CACHE_TTL`                | `5`                                 | Cache TTL in seconds               |
+| `THROTTLE_TTL`             | `60`                                | Rate-limit window (seconds)        |
+| `THROTTLE_LIMIT`           | `100`                               | Requests per IP per window         |
+| `HEALTH_HEAP_THRESHOLD_MB` | `150`                               | Max heap before health check fails |
+| `HEALTH_RSS_THRESHOLD_MB`  | `300`                               | Max RSS before health check fails  |
+| `SEQ_SERVER_URL`           | —                                   | Seq ingestion endpoint (optional)  |
+| `SEQ_API_KEY`              | —                                   | Seq API key (optional)             |
+| `SEQ_SERVICE_NAME`         | `nestjs-boilerplate`                | Service name sent to Seq           |
+| `PROMETHEUS_METRICS_PATH`  | `metrics`                           | Prometheus scrape path             |
 
 ## Continuous Integration
 

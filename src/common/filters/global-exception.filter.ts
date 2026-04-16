@@ -153,7 +153,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return Array.isArray(message);
   }
 
-  private isRecord(value: unknown): value is Record<string, any> {
+  private isRecord(value: unknown): value is Record<string, unknown> {
     return this.isObject(value) && !Array.isArray(value);
   }
 

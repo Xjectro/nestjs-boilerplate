@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@fastify/helmet": "^13.0.2",
+    "@fastify/multipart": "^10.0.0",
     "@fastify/static": "^9.0.0",
     "@fastify/view": "^11.1.1",
     "@jasonsoft/nestjs-seq": "^2.2.0",

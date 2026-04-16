@@ -1,4 +1,4 @@
-import { Schema, Query } from 'mongoose';
+import { Query, Schema } from 'mongoose';
 
 export interface SoftDeleteDocument {
   deletedAt?: Date | null;

@@ -1,4 +1,5 @@
 import helmet from '@fastify/helmet';
+import multipart from '@fastify/multipart';
 import { ConsoleSeqLogger, SeqLogger } from '@jasonsoft/nestjs-seq';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,13 +12,18 @@ import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter'
 import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 
+type FastifyRegisterPlugin = Parameters<NestFastifyApplication['register']>[0];
+
 export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
     bufferLogs: true,
   });
 
   /** Security */
-  await app.register(helmet, { contentSecurityPolicy: false });
+  await app.register(helmet as FastifyRegisterPlugin, { contentSecurityPolicy: false });
+  await app.register(multipart as FastifyRegisterPlugin, {
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
 
   /** Validation */
   app.useGlobalPipes(
@@ -30,9 +36,13 @@ export async function bootstrap() {
 
   /** Swagger */
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('NestJS Boilerplate')
-    .setDescription('The NestJS Boilerplate API description')
+    .setTitle('Maharet Mantı Bodrum API')
+    .setDescription('Maharet Mantı Bodrum backend API')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
+      'access-token',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, documentFactory);
