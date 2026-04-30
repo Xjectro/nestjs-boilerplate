@@ -15,8 +15,8 @@ import {
   buildIdempotencyLockKey,
   IDEMPOTENCY_CACHE_TTL,
   IDEMPOTENCY_LOCK_TTL,
-} from '@/common/http/idempotency';
-import { getHeader, NestFastifyRequest } from '@/common/http/request';
+} from '@/shared/http/idempotency';
+import { getHeader, NestFastifyRequest } from '@/shared/http/request';
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {

@@ -1,8 +1,8 @@
 import { SeqLogger } from '@jasonsoft/nestjs-seq';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { tap } from 'rxjs/operators';
-import { RequestContext } from '@/common/context';
-import { NestFastifyRequest } from '@/common/http/request';
+import { RequestContext } from '@/shared/context';
+import { NestFastifyRequest } from '@/shared/http/request';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {

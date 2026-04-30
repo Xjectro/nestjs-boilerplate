@@ -7,10 +7,10 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
-import type { EnvConfig } from '@/common/config';
-import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter';
-import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import type { EnvConfig } from '@/shared/config';
+import { GlobalExceptionFilter } from '@/shared/filters/global-exception.filter';
+import { LoggingInterceptor } from '@/shared/interceptors/logging.interceptor';
+import { ResponseInterceptor } from '@/shared/interceptors/response.interceptor';
 
 type FastifyRegisterPlugin = Parameters<NestFastifyApplication['register']>[0];
 

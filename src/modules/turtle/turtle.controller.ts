@@ -11,8 +11,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { IdempotencyInterceptor } from '@/common/interceptors/idempotency.interceptor';
-import { PaginationQueryDto } from '@/common/pagination';
+import { IdempotencyInterceptor } from '@/shared/interceptors/idempotency.interceptor';
+import { PaginationQueryDto } from '@/shared/pagination';
 import { CreateTurtleDto } from './dto/create-turtle.dto';
 import { UpdateTurtleDto } from './dto/update-turtle.dto';
 import { TurtleService } from './turtle.service';

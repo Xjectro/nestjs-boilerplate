@@ -1,6 +1,6 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
-import { createCacheKeyBuilder } from '@/common/cache/cache.keys';
+import { createCacheKeyBuilder } from '@/shared/cache/cache.keys';
 import { Turtle } from './entities/turtle.schema';
 
 const turtleCacheKeys = createCacheKeyBuilder('turtles');

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from '@/app.module';
-import type { EnvConfig } from '@/common/config';
+import type { EnvConfig } from '@/shared/config';
 import { TurtleSeeder } from '@/modules/turtle/turtle.seeder';
 
 async function seed() {

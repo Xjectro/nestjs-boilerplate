@@ -2,10 +2,10 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { EnvConfig } from '@/common/config';
-import { RequestContext } from '@/common/context';
-import { NestFastifyRequest } from '@/common/http/request';
-import { ApiSuccessResponse } from '@/common/http/response';
+import type { EnvConfig } from '@/shared/config';
+import { RequestContext } from '@/shared/context';
+import { NestFastifyRequest } from '@/shared/http/request';
+import { ApiSuccessResponse } from '@/shared/http/response';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {

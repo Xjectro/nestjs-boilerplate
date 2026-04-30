@@ -7,9 +7,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import type { Response } from 'supertest';
 import { AppModule } from '@/app.module';
-import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter';
-import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
-import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+import { GlobalExceptionFilter } from '@/shared/filters/global-exception.filter';
+import { LoggingInterceptor } from '@/shared/interceptors/logging.interceptor';
+import { ResponseInterceptor } from '@/shared/interceptors/response.interceptor';
 import { assertErrorPayload, assertSuccessPayload } from './utils/api-assertions';
 
 type TurtleResponse = {

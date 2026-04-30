@@ -1,8 +1,8 @@
 import { SeqLoggerModule } from '@jasonsoft/nestjs-seq';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { EnvConfig } from '@/common/config';
-import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
+import type { EnvConfig } from '@/shared/config';
+import { LoggingInterceptor } from '@/shared/interceptors/logging.interceptor';
 
 @Module({
   imports: [

@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiErrorCode } from '@/common/http/response';
-import { paginate, type PaginatedResponse } from '@/common/pagination';
+import { ApiErrorCode } from '@/shared/http/response';
+import { paginate, type PaginatedResponse } from '@/shared/pagination';
 import { CreateTurtleDto } from './dto/create-turtle.dto';
 import { UpdateTurtleDto } from './dto/update-turtle.dto';
 import { Turtle } from './entities/turtle.schema';

@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
-import { NestFastifyRequest } from '@/common/http/request';
+import { NestFastifyRequest } from '@/shared/http/request';
 
 const CORRELATION_HEADER = 'x-correlation-id';
 

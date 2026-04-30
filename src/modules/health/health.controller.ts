@@ -6,7 +6,7 @@ import {
   MemoryHealthIndicator,
   MongooseHealthIndicator,
 } from '@nestjs/terminus';
-import type { EnvConfig } from '@/common/config';
+import type { EnvConfig } from '@/shared/config';
 import { RedisHealthIndicator } from './redis.health.indicator';
 
 const bytesFromMb = (value: number) => value * 1024 * 1024;

@@ -32,7 +32,7 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 
 ### App Module (`src/app.module.ts`)
 
-- `ConfigModule` — global, validates `.env` with Zod schema (`src/common/config/env.schema.ts`)
+- `ConfigModule` — global, validates `.env` with Zod schema (`src/shared/config/env.schema.ts`)
 - `ContextModule` — global, provides `RequestContext` (CLS) + `CorrelationIdMiddleware`
 - `EventEmitterModule` — in-process event bus
 - `MongooseModule` — connects via `MONGODB_URI`
@@ -42,7 +42,7 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 - `MonitoringModule` — Prometheus metrics interceptor
 - Domain modules: `TurtleModule`, `HealthModule`
 
-### Common (`src/common/`)
+### Shared (`src/shared/`)
 
 | Directory       | Purpose                                                                    |
 | --------------- | -------------------------------------------------------------------------- |
@@ -77,7 +77,7 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 │   ├── bootstrap.ts               # app bootstrap
 │   ├── app.module.ts              # root module
 │   ├── seed.ts                    # database seeder CLI
-│   ├── common/
+│   ├── shared/
 │   │   ├── config/                # Zod env validation
 │   │   ├── context/               # CLS + correlation ID
 │   │   ├── pagination/            # pagination DTO + helper

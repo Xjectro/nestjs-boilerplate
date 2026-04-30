@@ -1,8 +1,8 @@
 import { SeqLogger } from '@jasonsoft/nestjs-seq';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
-import { NestFastifyRequest } from '@/common/http/request';
-import { ApiErrorCode, ApiErrorResponse } from '@/common/http/response';
+import { NestFastifyRequest } from '@/shared/http/request';
+import { ApiErrorCode, ApiErrorResponse } from '@/shared/http/response';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

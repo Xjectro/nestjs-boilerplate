@@ -1,7 +1,7 @@
 import * as crypto from 'crypto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { softDeletePlugin, type SoftDeleteDocument } from '@/common/database';
+import { softDeletePlugin, type SoftDeleteDocument } from '@/shared/database';
 
 @Schema({ timestamps: true, id: false })
 export class Turtle {
