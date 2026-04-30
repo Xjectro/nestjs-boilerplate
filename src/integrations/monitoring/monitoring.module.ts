@@ -7,7 +7,7 @@ import {
   PrometheusModule,
 } from '@willsoto/nestjs-prometheus';
 import type { EnvConfig } from '@/shared/config';
-import { MetricsInterceptor } from '@/shared/interceptors/metrics.interceptor';
+import { MetricsInterceptor } from '@/integrations/monitoring/metrics.interceptor';
 
 const REQUEST_LABELS: Array<'method' | 'route' | 'status'> = ['method', 'route', 'status'];
 

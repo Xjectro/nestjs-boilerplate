@@ -40,9 +40,20 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 - `ThrottlerModule` — rate limiting via `THROTTLE_TTL` / `THROTTLE_LIMIT`
 - `LoggerModule` — Seq structured logging
 - `MonitoringModule` — Prometheus metrics interceptor
-- Domain modules: `TurtleModule`, `HealthModule`
+- Domain modules: `TurtleModule`, `HealthModule` (via `shared/health`)
+
+### Integrations (`src/integrations/`)
+
+Third-party service wrappers, each self-contained:
+
+| Directory     | Purpose                                                             |
+| ------------- | ------------------------------------------------------------------- |
+| `logger/`     | `LoggerModule` (Seq via `@jasonsoft/nestjs-seq`) + `LoggingInterceptor` |
+| `monitoring/` | `MonitoringModule` (Prometheus + Grafana) + `MetricsInterceptor`    |
 
 ### Shared (`src/shared/`)
+
+Core infrastructure with no external service coupling:
 
 | Directory       | Purpose                                                                    |
 | --------------- | -------------------------------------------------------------------------- |
@@ -51,24 +62,22 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 | `pagination/`   | `PaginationQueryDto`, `paginate()` helper, `PaginatedResponse<T>` type     |
 | `database/`     | Mongoose soft-delete plugin (`deletedAt`, `softDelete()`, `restore()`)     |
 | `filters/`      | `GlobalExceptionFilter` with `ApiErrorCode` mapping                        |
-| `interceptors/` | Logging, response envelope, idempotency, metrics interceptors              |
+| `health/`       | Liveness (`/health`) and readiness (`/health/ready`) endpoints             |
+| `interceptors/` | Response envelope, idempotency interceptors                                |
 | `http/`         | `ApiSuccessResponse`, `ApiErrorResponse`, idempotency utilities            |
 | `cache/`        | Shared cache key helpers                                                   |
-| `modules/`      | `LoggerModule` (Seq), `MonitoringModule` (Prometheus)                      |
 
 ### Domain Modules (`src/modules/`)
 
 - **Turtle** — Full CRUD with pagination, soft delete, Redis caching, event emitting, and a database
   seeder.
-- **Health** — Liveness (`/health`) and readiness (`/health/ready`) endpoints with MongoDB, Redis,
-  and memory indicators.
 
 ## Repository Layout
 
 ```
 ├── docker/
 │   ├── compose.{base,dev,staging,prod,test}.yml
-│   ├── env/                       # .env.dev, .env.staging, .env.prod, .env.test
+│   ├── env/                       # .env.dev, .env.example, .env.test, .env.prod, .env.staging
 │   ├── images/api/                # Dockerfile.{dev,prod,staging,test}
 │   ├── grafana/provisioning/      # dashboards + datasources
 │   └── prometheus/                # prometheus.yml
@@ -76,19 +85,22 @@ Single-file bootstrap that creates a `NestFastifyApplication` and registers:
 │   ├── main.ts                    # entry point
 │   ├── bootstrap.ts               # app bootstrap
 │   ├── app.module.ts              # root module
-│   ├── seed.ts                    # database seeder CLI
+│   ├── cli/
+│   │   └── seed.ts                # database seeder CLI
+│   ├── integrations/
+│   │   ├── logger/                # Seq — LoggerModule + LoggingInterceptor
+│   │   └── monitoring/            # Prometheus — MonitoringModule + MetricsInterceptor
 │   ├── shared/
-│   │   ├── config/                # Zod env validation
-│   │   ├── context/               # CLS + correlation ID
-│   │   ├── pagination/            # pagination DTO + helper
+│   │   ├── config/                # Zod env validation + EnvConfig type
+│   │   ├── context/               # CLS + correlation ID middleware
 │   │   ├── database/              # soft-delete plugin
 │   │   ├── filters/               # global exception filter
-│   │   ├── interceptors/          # logging, response, idempotency, metrics
+│   │   ├── health/                # health + readiness controller
 │   │   ├── http/                  # response types, request helpers
+│   │   ├── interceptors/          # response envelope, idempotency
 │   │   ├── cache/                 # cache key builders
-│   │   └── modules/               # logger (Seq), monitoring (Prometheus)
+│   │   └── pagination/            # pagination DTO + helper
 │   └── modules/
-│       ├── health/                # health + readiness controller
 │       └── turtle/                # CRUD module (service, repo, cache, events, seeder)
 ├── test/
 │   ├── turtle.e2e-spec.ts
@@ -178,6 +190,8 @@ appropriate Dockerfile and runtime flags.
 | `SEQ_API_KEY`              | —                                   | Seq API key (optional)             |
 | `SEQ_SERVICE_NAME`         | `nestjs-boilerplate`                | Service name sent to Seq           |
 | `PROMETHEUS_METRICS_PATH`  | `metrics`                           | Prometheus scrape path             |
+| `SWAGGER_TITLE`            | `NestJS Boilerplate`                | Swagger UI title                   |
+| `SWAGGER_DESCRIPTION`      | `NestJS Boilerplate API`            | Swagger UI description             |
 
 ## Continuous Integration
 

@@ -9,9 +9,9 @@ import { redisStore } from 'cache-manager-redis-yet';
 import { ConfigModule, type EnvConfig } from '@/shared/config';
 import { ContextModule } from '@/shared/context';
 import { ResponseInterceptor } from '@/shared/interceptors/response.interceptor';
-import { LoggerModule } from '@/shared/modules/logger.module';
-import { MonitoringModule } from '@/shared/modules/monitoring.module';
-import { HealthModule } from '@/modules/health/health.module';
+import { LoggerModule } from '@/integrations/logger/logger.module';
+import { MonitoringModule } from '@/integrations/monitoring/monitoring.module';
+import { HealthModule } from '@/shared/health/health.module';
 import { TurtleModule } from '@/modules/turtle/turtle.module';
 
 @Module({

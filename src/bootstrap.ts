@@ -9,7 +9,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '@/app.module';
 import type { EnvConfig } from '@/shared/config';
 import { GlobalExceptionFilter } from '@/shared/filters/global-exception.filter';
-import { LoggingInterceptor } from '@/shared/interceptors/logging.interceptor';
+import { LoggingInterceptor } from '@/integrations/logger/logging.interceptor';
 import { ResponseInterceptor } from '@/shared/interceptors/response.interceptor';
 
 type FastifyRegisterPlugin = Parameters<NestFastifyApplication['register']>[0];
@@ -35,9 +35,10 @@ export async function bootstrap() {
   );
 
   /** Swagger */
+  const config = app.get(ConfigService<EnvConfig, true>);
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Maharet Mantı Bodrum API')
-    .setDescription('Maharet Mantı Bodrum backend API')
+    .setTitle(config.get('SWAGGER_TITLE'))
+    .setDescription(config.get('SWAGGER_DESCRIPTION'))
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
@@ -61,7 +62,6 @@ export async function bootstrap() {
   app.enableShutdownHooks();
 
   /** Start */
-  const config = app.get(ConfigService<EnvConfig, true>);
   const port = config.get('PORT');
   await app.listen(port, '0.0.0.0');
 }
